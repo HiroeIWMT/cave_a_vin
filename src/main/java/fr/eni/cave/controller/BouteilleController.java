@@ -1,0 +1,129 @@
+package fr.eni.cave.controller;
+import java.util.List;
+
+import jakarta.validation.Valid;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import fr.eni.cave.bll.BouteilleService;
+import fr.eni.cave.bo.vin.Bouteille;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@AllArgsConstructor
+@RestController
+@RequestMapping("/caveavin/bouteilles")
+public class BouteilleController {
+    private BouteilleService bService;
+    // Pour visiteur, Client et Proprio
+    @GetMapping
+    public ResponseEntity<?> rechercherTousBouteilles() {
+        final List<Bouteille> bouteilles = bService.chargerToutesBouteilles();
+        if (bouteilles == null || bouteilles.isEmpty()) {
+        // Statut 204 : No Content - Pas de body car rien à afficher
+            return ResponseEntity.noContent().build();
+        }
+        // Statut 200 : OK + dans le body bouteilles
+        // Le contenu du body est directement injecté dans la méthode ok
+        return ResponseEntity.ok(bouteilles);
+    }
+
+    @GetMapping("/{id")
+    public ResponseEntity<?> rechercherTousBouteilleParId(@PathVariable("id") String idInPath) {
+        try{
+            int id = Integer.parseInt(idInPath);
+            final Bouteille emp = bService.chargerBouteilleParId(id);
+            return ResponseEntity.ok(emp);
+        }catch(NumberFormatException e){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Votre identifiant n'est pas un entier");
+        }
+    }
+    @GetMapping("/region/{id}")
+    public ResponseEntity<?> rechercherBouteillesParRegion(@PathVariable("id") String idInPath) {
+        try {
+            final int idRegion = Integer.parseInt(idInPath);
+            final List<Bouteille> bouteilles = bService.chargerBouteillesParRegion(idRegion);
+            return ResponseEntity.ok(bouteilles);
+        } catch (NumberFormatException e) {
+        // Statut 406 : No Acceptable
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Votre identifiant n'est pas un entier");
+        }
+    }
+    @GetMapping("/couleur/{id}")
+    public ResponseEntity<?> rechercherBouteillesParCouleur(@PathVariable("id") String idInPath) {
+        try {
+            final int idCouleur = Integer.parseInt(idInPath);
+            final List<Bouteille> bouteilles = bService.chargerBouteillesParCouleur(idCouleur);
+            return ResponseEntity.ok(bouteilles);
+        } catch (NumberFormatException e) {
+        // Statut 406 : No Acceptable
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Votre identifiant n'est pas un entier");
+        }
+    }
+
+    // Pour le Proprio
+    /*
+    @PostMapping
+    public ResponseEntity<?> ajouterBouteille(@RequestBody Bouteille bouteille) {
+        if(bouteille == null) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("La bouteille a ajoutée est obligatoire");
+        }
+        if(bouteille.getId()!= null) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Impossible de sauver votre bouteille");
+        }
+        try {
+            bService.ajouter(bouteille);
+            return ResponseEntity.ok(bouteille);
+        } catch (RuntimeException e) {
+        // Erreur BLL ou DAL
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage());
+        }
+    }
+*/
+    // Pour le Proprio
+    @PutMapping
+    public ResponseEntity<?> miseAJourBouteille(@RequestBody Bouteille bouteille) {
+        try {
+            if (bouteille == null || bouteille.getId() == null || bouteille.getId() <= 0) {
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                        .body("La bouteille et l'identifiant sont obligatoires");
+            }
+            bService.ajouter(bouteille);
+            return ResponseEntity.ok(bouteille);
+        } catch (RuntimeException e) {
+        // Erreur BLL ou DAL
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage());
+        }
+    }
+
+    // Pour le Proprio
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBouteille(@PathVariable("id") String idInPath) {
+        try {
+            final int idBouteille = Integer.parseInt(idInPath);
+            bService.supprimer(idBouteille);
+            return ResponseEntity.ok("Bouteille (" + idBouteille + ") est supprimée");
+        } catch (NumberFormatException e) {
+        // Statut 406 : No Acceptable
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Votre identifiant n'est pas un entier");
+        } catch (RuntimeException e) {
+        // Erreur BLL ou DAL
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage());
+        }
+    }
+
+    //Proprio
+    @PostMapping
+    public ResponseEntity<?> ajouterBouteille(@Valid @RequestBody Bouteille bouteille) {
+        try{
+            bService.ajouter(bouteille);
+            return ResponseEntity.ok(bouteille);
+        }catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage());
+        }
+    }
+}

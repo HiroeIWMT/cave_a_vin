@@ -15,6 +15,7 @@ public interface BouteilleRepository extends JpaRepository<Bouteille, Integer> {
     // Rechercher des bouteilles par leur couleur
     List<Bouteille> findByCouleur(@Param("c") Couleur c);
 
+
     //Rechercher des boutilles par leur région
    //=> List<Bouteille> findByRegion(@Param("r") Region r);
 
@@ -22,5 +23,5 @@ public interface BouteilleRepository extends JpaRepository<Bouteille, Integer> {
     //=>List<Bouteille> findByColeur(@Param("c") Couleur c);
 
     //Rechercher des boutilles par son nom
-    //=>Bouteille findByNom(@Param("nom") String nom);
+    Bouteille findByNom(String nom);
 }

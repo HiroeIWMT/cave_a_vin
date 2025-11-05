@@ -39,6 +39,12 @@ dependencies {
 
 	//Pour les tests unitaires sur JPA, on ajout la dépendance de la datasource H2
 	testImplementation 'com.h2database:h2'
+
+	//Ajout spring web
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	//Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {

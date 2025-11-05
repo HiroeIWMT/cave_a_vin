@@ -1,6 +1,10 @@
 package fr.eni.cave.bo.vin;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,35 +25,38 @@ public class Bouteille {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="BOTTLE_ID")
+    @Column(name = "BOTTLE_ID")
     private Integer id;
 
-    @Column(name="NAME", length = 250, unique = true, nullable = false)
+    @NotBlank
+    @Size(max = 250)
+    @Column(name = "NAME", length = 250, unique = true, nullable = false)
     private String nom;
 
-    @Column(name="SPARKLING", length = 250, unique = true, nullable = false)
+    @Column(name = "SPARKLING")
     private boolean petillant;
 
-    @Column(name="VINTAGE", length = 100)
+    @Size(max = 100)
+    @Column(name = "VINTAGE", length = 100)
     private String millesime;
 
-    @Column(name="QUANTITY")
+    @Min(1)
+    @Column(name = "QUANTITY")
     private int quantite;
+    @Min(1)
+    @Column(name = "PRICE", precision = 2)
+    private float prix;
 
-    @Column(name="PRICE", precision = 10, scale=2)
-    //private int prix;
-    private BigDecimal prix;
-
-    //une bouteille correspond une région
+    @NotNull
     @EqualsAndHashCode.Exclude
     @ManyToOne
-    @JoinColumn(name="REGION_ID")
+    @JoinColumn(name = "REGION_ID")
     private Region region;
 
-    //une bouteille correspond une coleur
+    @NotNull
     @EqualsAndHashCode.Exclude
     @ManyToOne
-    @JoinColumn(name="COLOR_ID")
+    @JoinColumn(name = "COLOR_ID")
     private Couleur couleur;
 
 }
